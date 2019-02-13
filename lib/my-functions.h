@@ -1,12 +1,13 @@
 #ifndef MY_FUNCTIONS
 #define MY_FUNCTIONS
 
-void write_to_physical_memory();
-void read_from_physical_memory();
+int *random_number_generator();
+char *random_character_generator();
 
-void write_to_page_table();
-void read_from_page_table();
+void write_to_physical_memory(int *, char *);
+//void read_from_physical_memory();
 
-void do_table();
+//void write_to_page_table();
+//void read_from_page_table();
 
 #endif
