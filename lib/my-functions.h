@@ -2,12 +2,11 @@
 #define MY_FUNCTIONS
 
 int *random_number_generator();
-char *random_character_generator();
+int *getCharacters();
 
-void write_to_physical_memory(int *, char *);
+void write_to_physical_memory(int *, char *, int *);
+void write_to_page_table(int, int, int);
+
 //void read_from_physical_memory();
-
-//void write_to_page_table();
 //void read_from_page_table();
-
 #endif
