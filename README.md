@@ -8,6 +8,10 @@ operating systems ca1
 //https://ubuntuforums.org/showthread.php?t=1686044
 //https://www.tutorialspoint.com/cprogramming/c_return_arrays_from_function.html
 //https://www.geeksforgeeks.org/c-program-print-contents-file/
+/https://www.includehelp.com/c-programs/extract-bytes_from_int.aspx
+
+//references for makefile
+//from lab5 classwork
 
 //Git repository
 //https://github.com/McFadden555/osca1/git

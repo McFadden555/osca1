@@ -37,14 +37,14 @@ void enter_address_show_data(){
 
 	int HexAddress = -1;
 	int DecAddress;
-	printf("Please enter a number between 0 and FFFF (65535) or -1 to quit : ");
+	printf("Please enter a Hex number between 0 and FFFF (65535)(e.g. of input: 0xa300) or -1 to quit: ");
 	scanf("%x", &HexAddress);
 	DecAddress = HexAddress;
 	if(HexAddress == -1){
 		printf("Quitting...\n\n");
 	}
 	else if(DecAddress < 0 || DecAddress > 65535){
-		printf("That address is not used, Please try again.\n");
+		printf("\nBad number, Please try again.\n");
 		enter_address_show_data();
 	}
 	else{
@@ -72,30 +72,33 @@ void write_to_physical_memory(int number, int *characters, int firstchar){
 	int page_size = 256;
 	int current_address = 0; //needed an int for current_address and frame because i and j didnt display the tables properly
 	int frame = 0;
-
+	_Bool isused = 0;
 	//printing the table to the physical memory text file
-	fprintf(physical_memory," Address\t| Frame\t| Content\n");
-	fprintf(physical_memory,"----------------|-------|------------\n");
+	fprintf(physical_memory," Address\t| Frame\t| Content | Used?\n");
+	fprintf(physical_memory,"----------------|-------|---------|--------\n");
 	for(int i=0; i<page_size; ++i){
 		for(int j=0; j<page_size; ++j){
 			//printing the random characters to the table
 			if(current_address >= firstchar && current_address < (firstchar + number)){
-				fprintf(physical_memory, " 0x%x\t\t| %d\t| %c\n", current_address, frame, *(characters+j));
+				isused = 1;
+				fprintf(physical_memory, " 0x%x\t\t| %d\t| %c\t  | %d\n", current_address, frame, *(characters+j), isused);
 			}
 			else{
-				fprintf(physical_memory, " 0x%x\t\t| %d\t| ...\n", current_address, frame);
+				isused = 0;
+				fprintf(physical_memory, " 0x%x\t\t| %d\t| ...\t  | %d\n", current_address, frame, isused);
 			}
 			++current_address;
 		}
 		++frame;
 	}
-	fprintf(physical_memory,"-----------------------------------------\n");
+	fprintf(physical_memory,"----------------------------------------------\n");
 	fclose(physical_memory);
 }
 
 //references
 //https://ubuntuforums.org/showthread.php?t=1686044
 //https://www.tutorialspoint.com/cprogramming/c_return_arrays_from_function.html
+//https://www.includehelp.com/c-programs/extract-bytes_from_int.aspx
 void write_to_page_table(int *characters, int number1, int firstchar){
 	FILE *page_table = fopen("data/page_table.txt", "w");
 	if(page_table == NULL){
@@ -103,17 +106,43 @@ void write_to_page_table(int *characters, int number1, int firstchar){
 		exit(1);
 	}
 	int page = 0;
+	int i = (firstchar/255); //frame
 	int j = 0;
-	int address = ((firstchar+page)+j);
-	int offset = 0;
-	int frame = 0;
-	int sum = (frame + offset);
-	//int isused= 0;
+
+	typedef unsigned char BYTE;
+	unsigned int virtual_address=firstchar;
+	printf("virtual address used for swapping: 0x%x\n", virtual_address);
+	BYTE offset,vpn,temp;
+	offset=(virtual_address&0xFF);
+	vpn=((virtual_address>>8)&0xFF);
+
+	printf("offset: %02X\n", offset);
+	printf("VPN: %02X\n", vpn);
+	printf("PFN: %d\n\n", vpn);
+	
+	int sum = offset + vpn;
+	//swapping (i know this is not exactly the way you wanted but i was running out of time and couldnt figure out a better way to do it)
+	printf("sum of offset and PFN before swap = %d\n", sum);
+	temp = offset;
+	offset = vpn;
+	vpn = temp;
+	temp = vpn;
+	vpn = offset;
+	offset = temp;
+
 	//printing the table to the page table text file
-	fprintf(page_table," Page\t | Frame | First Address of Page/Frame (Hex)\t| First Address of Page/Frame (Dec)\n");
-	fprintf(page_table,"---------|-------|--------------------------------------|---------------------------------\n");
-	for(frame=(firstchar/255); frame<256; ++frame){
-		fprintf(page_table, "%d\t | %d\t | 0x%x \t\t\t\t| %d\t | %x\n", page, frame, ((firstchar+page)+j), address, sum);
+	fprintf(page_table," Page\t | Frame | First Address of Page/Frame\t| swapping...\n");
+	fprintf(page_table,"---------|-------|------------------------------|---------------------------------\n");
+	for(int frame=i; frame<256; ++frame){
+		if(page == 0){
+	fprintf(page_table, "%d\t | %d\t | 0x%x\t--\t%d\t| %d\n", page, frame, ((firstchar+page)+j), ((firstchar+page)+j), (offset + frame));
+	printf("sum of offset and PFN after swap = %d\n\n", sum);
+	
+		}
+		else{
+	fprintf(page_table, "%d\t | %d\t | 0x%x\t--\t%d\n", page, frame, ((firstchar+page)+j), ((firstchar+page)+j));
+		}
+		
 		++page;
 		j = j+255;
 	}
