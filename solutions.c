@@ -7,26 +7,26 @@ int main(){
 	start = 2048;
 	end = 20480;
 	int number1 = random_number_generator(amount, start, end);
+	printf("random number of chars: %d\n", number1);
 
 	amount = number1;	
 	start = 33;
 	end = 126;
-	int *character = random_number_generator(amount, start, end);
+	int *characters = getCharacters(amount, start, end);
 
-	printf("random number = %d\n", number1);
-	printf("random characters (Dec) = %d\n", character);
-	printf("random character = %c\n\n\n", character);
+	amount = 1;
+	start = 2;
+	end = 255 - (number1 / 255);
+	int firstchar = random_number_generator(amount, start, end);
+	printf("Frame characters start at: %d\n", firstchar);
+	firstchar = firstchar * 256;
+	printf("Hex address characters start at: 0x%x\nDec address characters start at: %d\n", firstchar, firstchar);
 
-	int *characters;
-	characters = getCharacters(amount, start, end);
-	//printf("characters....\n");
-	//for(int i=0; i<amount; ++i){printf("%c", *(characters+i));}
+	write_to_page_table(characters, number1, firstchar);
+	write_to_physical_memory(number1, characters, firstchar);
 
-	write_to_page_table(amount, start, end);
-	write_to_physical_memory(number1, character, characters);
+	enter_address_show_data();
 
-//	read_from_physical_memory();
-//	read_from_page_table();
-
+	//read_from_page_table();
 	return 0;
 }
